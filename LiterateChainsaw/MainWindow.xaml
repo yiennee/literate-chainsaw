@@ -1,0 +1,77 @@
+﻿<Window x:Class="LiterateChainsaw.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LiterateChainsaw"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.DataContext>
+        <local:MainViewModel/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+             
+        <!--if want to use other cells, just move R1C1 to above-->
+        <DockPanel Grid.Row="0" Background="Transparent" Margin="5">
+            <Border DockPanel.Dock="Right" BorderThickness="1" BorderBrush="Black">
+                <StackPanel Name="CommandPanel"  Orientation="Vertical" DockPanel.Dock="Left" Width="Auto" Margin="5,0,5,0">
+                    <TextBlock Text="General Command" Margin="0,0,0,3"/>
+                    <Button Name="Btn1" Margin="2" Content="Start" Command="{Binding}"/>
+                    <Button Name="Btn2" Margin="2" Content="Load Recipe" Command="{Binding}"/>
+                    <Button Name="Btn3" Margin="2" Content="Configure IN" Command="{Binding}"/>
+                    <Button Name="Btn4" Margin="2" Content="Configure OUT" Command="{Binding}"/>
+                    <TextBlock Text="-------------------"/>
+                    <Button Name="Btn5" Margin="2" Content="///" Command="{Binding}"/>
+                </StackPanel>
+            </Border>
+            <StackPanel>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Main Config" Margin="0,0,0,3"/>
+                <Grid Margin="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" MinWidth="150"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Row="1" Grid.Column="0">
+                        <TextBlock Text="IsMulti-Thread"/>
+                        <TextBlock Text="MaxDegreeofParallelism "/>
+                        <TextBlock Text="IN (ToVisionProcessor)"/>
+                        <TextBlock Text="OUT (FromVisionProcessor)"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="1">
+                        <TextBox Text="{Binding Str_G_1, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                        <TextBox Text="{Binding Str_G_2, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                        <TextBox Text="{Binding Str_G_3, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                        <TextBox Text="{Binding Str_G_4, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Margin="5,0,5,0">
+                        <TextBlock Text="(bool)"/>
+                        <TextBlock Text="(int) no. of thread "/>
+                        <TextBlock Text="(string) incoming imgfiles; trigger to copy from source"/>
+                        <TextBlock Text="(string) incoming xmlfiles from VPro"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </DockPanel>
+        
+        <Grid Grid.Row="1" Background="PowderBlue" Margin="5">
+            <ScrollViewer Margin="2,2,2,27">
+                <ListBox x:Name="ListBox1" Background="AliceBlue" Foreground="White" ItemsSource="{Binding RunLog, UpdateSourceTrigger=PropertyChanged}">
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Clear" Command="{Binding CMD_Log_1}"/>
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                </ListBox>
+            </ScrollViewer>
+            <Button Name="BtnSaveLog" Margin="2,174,2,2" Content="Save Log" Command="{Binding}"/>
+        </Grid>
+    </Grid>
+</Window>
