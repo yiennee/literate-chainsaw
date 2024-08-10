@@ -80,5 +80,11 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\zingify-designs\ZingifyDesigns\ZingifyDesigns.csproj">
+      <Project>{b0908853-4c2d-4684-a57a-f45b5e207ef6}</Project>
+      <Name>ZingifyDesigns</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

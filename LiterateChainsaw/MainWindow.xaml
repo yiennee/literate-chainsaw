@@ -4,15 +4,51 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LiterateChainsaw"
+        xmlns:converters="clr-namespace:LiterateChainsaw.Converters"
+        xmlns:swf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Loaded="Window_Loaded"
+        Title="MainWindow" Height="950" Width="1800">
     <Window.DataContext>
         <local:MainViewModel/>
     </Window.DataContext>
+    <Window.Resources>
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        <Style TargetType="{x:Type Border}">
+            <Setter Property="BorderBrush" Value="SlateGray"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="{x:Type GroupBox}" TargetType="{x:Type GroupBox}">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="FontFamily" Value="Verdana" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Heavy"/>
+            <Setter Property="FontStyle" Value="Normal"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+
+        <converters:StringToSolidColorBrushConverter x:Key="StringToSolidColorBrushConverter"/>
+        <converters:ConditionMultiConverter x:Key="ConditionMultiConverter"/>
+        <converters:TrueForVisibleConverter x:Key="TrueForVisibleConverter"/>
+        <converters:YieldConditionConverter x:Key="YieldConditionConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="15*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -23,42 +59,564 @@
             <Border DockPanel.Dock="Right" BorderThickness="1" BorderBrush="Black">
                 <StackPanel Name="CommandPanel"  Orientation="Vertical" DockPanel.Dock="Left" Width="Auto" Margin="5,0,5,0">
                     <TextBlock Text="General Command" Margin="0,0,0,3"/>
-                    <Button Name="Btn1" Margin="2" Content="Start" Command="{Binding}"/>
-                    <Button Name="Btn2" Margin="2" Content="Load Recipe" Command="{Binding}"/>
-                    <Button Name="Btn3" Margin="2" Content="Configure IN" Command="{Binding}"/>
-                    <Button Name="Btn4" Margin="2" Content="Configure OUT" Command="{Binding}"/>
+                    <Button Name="Btn1" Margin="2" Content="Start" Command="{Binding CMDStartRun}"/>
+                    <Button Name="Btn2" Margin="2" Content="Load Recipe" Command="{Binding CMDLoadRecipe}"/>
+                    <Button Name="Btn3" Margin="2" Content="Abort" Command="{Binding CMDAbort}"/>
+                    <Button Name="Btn4" Margin="2" Content="Configure IN" Command="{Binding CMDConfigureIN}"/>
+                    <Button Name="Btn5" Margin="2" Content="Configure OUT" Command="{Binding CMDConfigureOUT}"/>
                     <TextBlock Text="-------------------"/>
-                    <Button Name="Btn5" Margin="2" Content="///" Command="{Binding}"/>
+                    <Button Name="Btn6" Margin="2" Content="///" Command="{Binding}" Click="Btn6_Click"/>
                 </StackPanel>
             </Border>
-            <StackPanel>
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Main Config" Margin="0,0,0,3"/>
-                <Grid Margin="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" MinWidth="150"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="2*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Row="1" Grid.Column="0">
-                        <TextBlock Text="IsMulti-Thread"/>
-                        <TextBlock Text="MaxDegreeofParallelism "/>
-                        <TextBlock Text="IN (ToVisionProcessor)"/>
-                        <TextBlock Text="OUT (FromVisionProcessor)"/>
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Grid.Column="1">
-                        <TextBox Text="{Binding Str_G_1, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-                        <TextBox Text="{Binding Str_G_2, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-                        <TextBox Text="{Binding Str_G_3, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-                        <TextBox Text="{Binding Str_G_4, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Grid.Column="2" Margin="5,0,5,0">
-                        <TextBlock Text="(bool)"/>
-                        <TextBlock Text="(int) no. of thread "/>
-                        <TextBlock Text="(string) incoming imgfiles; trigger to copy from source"/>
-                        <TextBlock Text="(string) incoming xmlfiles from VPro"/>
-                    </StackPanel>
-                </Grid>
-            </StackPanel>
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="650" Height="Auto" Background="Thistle">
+                <WindowsFormsHost Margin="10,10,10,50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <swf:PropertyGrid x:Name="pgdConfigurationEditor" ToolbarVisible="False" PropertySort="Categorized"/>
+                </WindowsFormsHost>
+
+                <StackPanel Orientation="Vertical"  Margin="0,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                    <Button x:Name="SaveButton" Click="SaveButton_Click" Content="Save" Grid.Column="0" Width="150" Height="30" HorizontalAlignment="Left" Margin="0,5,10,10" />
+                </StackPanel>
+            </Grid>
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="500" Height="Auto" Background="#FF162237">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="220"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <GroupBox Header="Run Status" Grid.Row="0" BorderThickness="1">
+                    <Border HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5"
+                                        BorderThickness="2" BorderBrush="Gray">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#B69E8B"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text, ElementName=VisionEngineStatus}" Value="READY">
+                                        <Setter Property="Background" Value="#DBE9C8"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Text, ElementName=VisionEngineStatus}" Value="PRODUCTION">
+                                        <Setter Property="Background" Value="#00FF00"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Text, ElementName=VisionEngineStatus}" Value="SUSPENDED">
+                                        <Setter Property="Background" Value="#FFE337"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Text, ElementName=VisionEngineStatus}" Value="ABORTED">
+                                        <Setter Property="Background" Value="#7B9B6B"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Text, ElementName=VisionEngineStatus}" Value="REVIEW">
+                                        <Setter Property="Background" Value="#FF9966"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Text, ElementName=VisionEngineStatus}" Value="ERROR">
+                                        <Setter Property="Background" Value="#FD361A"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Text, ElementName=VisionEngineStatus}" Value="INVALID COMMAND">
+                                        <Setter Property="Background" Value="#CB441B"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock x:Name="VisionEngineStatus"  Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" 
+                                           Foreground="Black" FontWeight="ExtraBold" FontSize="22" 
+                                           Text="{Binding VisionEngineState, UpdateSourceTrigger=PropertyChanged}"
+                                           TextAlignment="Center"/>
+                    </Border>
+                </GroupBox>
+                <GroupBox Header="Lot Info" Grid.Row="1" BorderThickness="1">
+                    <Grid Margin="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="15*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="35*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Lot ID"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text=":"/>
+                        <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding ProcessRun.Wafer.LotID, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Recipe ID"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text=":"/>
+                        <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding ProcessRun.Wafer.RecipeID, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Cassette ID"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text=":"/>
+                        <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding ProcessRun.Wafer.CassetteID, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Wafer ID"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text=":"/>
+                        <TextBox Grid.Row="3" Grid.Column="2" Text="{Binding ProcessRun.Wafer.WaferID, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Slot Info."/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text=":"/>
+                        <Grid Grid.Row="4" Grid.Column="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Text="{Binding ProcessRun.Wafer.SlotID, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text=" / "/>
+                            <TextBox Grid.Column="2" Text="{Binding ProcessRun.Wafer.TotalSlot, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        </Grid>
+
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Die Per Wafer"/>
+                        <TextBlock Grid.Row="5" Grid.Column="1" Text=":"/>
+                        <TextBox Grid.Row="5" Grid.Column="2" Text="{Binding ProcessRun.Wafer.TotalUnitCount, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Wafer Info" Grid.Row="2" BorderThickness="1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="130"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid x:Name="Table_WaferUnitCount" Background="Transparent" VerticalAlignment="Stretch" Height="Auto" Margin="10" Grid.Row="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3.5*"/>
+                                <ColumnDefinition Width="4*"/>
+                                <ColumnDefinition Width="4.3*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.Resources>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Margin" Value="3"/>
+                                </Style>
+                            </Grid.Resources>
+
+                            <Border Grid.Row="1" Grid.Column="1" Margin="0">
+                                <TextBlock Text="Counters" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center"/>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="2" Margin="0">
+                                <TextBlock Text="Percentage" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center"/>
+                            </Border>
+
+                            <Border Grid.Row="1" Grid.Column="0" Margin="0" HorizontalAlignment="Stretch"/>
+
+                            <Border Grid.Row="2" Grid.Column="0" Margin="0">
+                                <TextBlock Text="Inspected" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center"/>
+                            </Border>
+
+                            <Border Grid.Row="3" Grid.Column="0" Margin="0">
+                                <TextBlock Text="Pass" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center"/>
+                            </Border>
+
+                            <Border Grid.Row="4" Grid.Column="0" Margin="0">
+                                <TextBlock Text="Fail" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center"/>
+                            </Border>
+
+                            <Border Grid.Row="5" Grid.Column="0" Margin="0">
+                                <TextBlock Text="Invalid" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center"/>
+                            </Border>
+
+                            <Border Grid.Row="2" Grid.Column="1" Margin="0" HorizontalAlignment="Stretch">
+                                <TextBlock Text="{Binding Path=Wafer_Review.InspectedCount}" HorizontalAlignment="Center"/>
+                            </Border>
+
+                            <Border Grid.Row="2" Grid.Column="2" Margin="0" HorizontalAlignment="Stretch">
+                                <TextBlock Text="{Binding Path=ProcessRun.Wafer.InspectedCountPerc,  StringFormat={}{0:F2} %}" HorizontalAlignment="Center"/>
+                            </Border>
+
+                            <Border Grid.Row="3" Grid.Column="1" Margin="0" HorizontalAlignment="Stretch">
+                                <TextBlock Text="{Binding Path=ProcessRun.Wafer.PassCount}" HorizontalAlignment="Center"/>
+                            </Border>
+
+                            <Border Grid.Row="3" Grid.Column="2" Margin="0" HorizontalAlignment="Stretch">
+                                <TextBlock Text="{Binding Path=ProcessRun.Wafer.PassCountPerc,  StringFormat={}{0:F2} %}" HorizontalAlignment="Center"/>
+                            </Border>
+
+                            <Border Grid.Row="4" Grid.Column="1" Margin="0" HorizontalAlignment="Stretch">
+                                <TextBlock Text="{Binding Path=ProcessRun.Wafer.FailCount}" HorizontalAlignment="Center"/>
+                            </Border>
+
+                            <Border Grid.Row="4" Grid.Column="2" Margin="0" HorizontalAlignment="Stretch">
+                                <TextBlock Text="{Binding Path=ProcessRun.Wafer.FailCountPerc,  StringFormat={}{0:N2} %}" HorizontalAlignment="Center"/>
+                            </Border>
+
+                            <Border Grid.Row="5" Grid.Column="1" Margin="0" HorizontalAlignment="Stretch">
+                                <TextBlock Text="{Binding Path=ProcessRun.Wafer.InvalidCount}" HorizontalAlignment="Center"/>
+                            </Border>
+
+                            <Border Grid.Row="5" Grid.Column="2" Margin="0" HorizontalAlignment="Stretch">
+                                <TextBlock Text="{Binding Path=ProcessRun.Wafer.InvalidCountPerc,  StringFormat={}{0:F2} %}" HorizontalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid Margin="10" Grid.Row="1">
+                            <ScrollViewer Margin="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                <DataGrid Background="AliceBlue" Margin="2"
+                                              AutoGenerateColumns="False" CanUserSortColumns="False" IsReadOnly="True" 
+                                              CanUserAddRows="False" HorizontalGridLinesBrush="Gray" VerticalGridLinesBrush="Gray" 
+                                              Name="ErrorCddodeDataGrid1" 
+                                              ItemsSource="{Binding ProcessRun.Wafer.DefectVM.DefectList, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" >
+                                    <DataGrid.Resources>
+                                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                                            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="FontStyle" Value="Normal"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                        </Style>
+                                        <Style TargetType="{x:Type DataGridCell}">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        </Style>
+                                    </DataGrid.Resources>
+                                    <DataGrid.Columns>
+
+                                        <DataGridTemplateColumn Width="220" Header="Defect">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Rectangle Stroke="Black" StrokeThickness="1" Width="20" Fill="{Binding defectCodeData.DEFECT_CODE_COLOR, Converter={StaticResource StringToSolidColorBrushConverter}}" Margin="1"/>
+                                                        <TextBlock Text="{Binding defectCodeData.DEFECT_NAME}" Margin="5,0,0,0"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Width="100" Header="Code" Binding="{Binding defectCodeData.DEFECT_CODE}"/>
+                                        <DataGridTextColumn Width="100" Header="Qty" Binding="{Binding Count}"/>
+                                        <DataGridTextColumn Width="120" Header="Percentage" Binding="{Binding Perc, StringFormat={}{0:F2} %}"/>
+                                        <DataGridTextColumn Width="100" Header="VPro" Binding="{Binding VProContributes}"/>
+                                        <DataGridTextColumn Width="100" Header="Vidi" Binding="{Binding VidiContributes}"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </ScrollViewer>
+                        </Grid>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto" Background="DarkBlue">
+
+                <GroupBox Header="Wafer Map" Grid.Row="0" BorderThickness="1">
+                    <Grid Margin="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="1" Grid.Column="0" Grid.RowSpan="3" Grid.ColumnSpan="2" Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="75*"/>
+                                <ColumnDefinition Width="626*"/>
+                            </Grid.ColumnDefinitions>
+                            <Canvas x:Name="WaferCanvas"  Margin="20,10,20,10"
+                                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                        Background="Transparent"  Grid.ColumnSpan="2">
+
+                                <ItemsControl ItemsSource="{Binding ProcessRun.Wafer.ItemList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas Margin="0" Background="Black" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Width="{Binding Width}" Height="{Binding Height}" x:Name="eGrid">
+
+                                                <Grid.Resources>
+                                                    <Style TargetType="{x:Type Grid}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger>
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource ConditionMultiConverter}">
+                                                                        <Binding Path="IsProcessed"/>
+                                                                        <Binding Path="IsVProFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsVidiFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsUnitInvalid"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <DataTrigger.Value>
+                                                                    <sys:Int32>1</sys:Int32>
+                                                                </DataTrigger.Value>
+                                                                <!--VPro Fail Only: GridBackground=DefectColor; Border=DefectColor-->
+                                                                <Setter Property="Background" Value="{Binding Primary_Defect_Code_Color, UpdateSourceTrigger=PropertyChanged, FallbackValue=#A9A9A9}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger>
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource ConditionMultiConverter}">
+                                                                        <Binding Path="IsProcessed"/>
+                                                                        <Binding Path="IsVProFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsVidiFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsUnitInvalid"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <DataTrigger.Value>
+                                                                    <sys:Int32>2</sys:Int32>
+                                                                </DataTrigger.Value>
+                                                                <!--Both FAIL as Primary Defect: GridBackground=DefectColor; Border=DefectColor-->
+                                                                <Setter Property="Background" Value="{Binding Primary_Defect_Code_Color, UpdateSourceTrigger=PropertyChanged, FallbackValue=#A9A9A9}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger>
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource ConditionMultiConverter}">
+                                                                        <Binding Path="IsProcessed"/>
+                                                                        <Binding Path="IsVProFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsVidiFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsUnitInvalid"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <DataTrigger.Value>
+                                                                    <sys:Int32>3</sys:Int32>
+                                                                </DataTrigger.Value>
+                                                                <!--Vidi Fail Only: GridBackground=DefectColor; Border=AliceBlue-->
+                                                                <Setter Property="Background" Value="{Binding Primary_Defect_Code_Color, UpdateSourceTrigger=PropertyChanged, FallbackValue=#A9A9A9}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger>
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource ConditionMultiConverter}">
+                                                                        <Binding Path="IsProcessed"/>
+                                                                        <Binding Path="IsVProFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsVidiFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsUnitInvalid"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <DataTrigger.Value>
+                                                                    <sys:Int32>4</sys:Int32>
+                                                                </DataTrigger.Value>
+                                                                <!--Both NOT Fail as Primary Defect: GridBackground=Green; Border=Green-->
+                                                                <Setter Property="Background" Value="LawnGreen"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger>
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource ConditionMultiConverter}">
+                                                                        <Binding Path="IsProcessed"/>
+                                                                        <Binding Path="IsVProFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsVidiFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsUnitInvalid"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <DataTrigger.Value>
+                                                                    <sys:Int32>5</sys:Int32>
+                                                                </DataTrigger.Value>
+                                                                <!--Default-->
+                                                                <Setter Property="Background" Value="#A9A9A9"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger>
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource ConditionMultiConverter}">
+                                                                        <Binding Path="IsProcessed"/>
+                                                                        <Binding Path="IsVProFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsVidiFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsUnitInvalid"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <DataTrigger.Value>
+                                                                    <sys:Int32>6</sys:Int32>
+                                                                </DataTrigger.Value>
+                                                                <!--Default-->
+                                                                <Setter Property="Background" Value="Gray"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                    <Style TargetType="{x:Type Border}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger>
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource ConditionMultiConverter}">
+                                                                        <Binding Path="IsProcessed"/>
+                                                                        <Binding Path="IsVProFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsVidiFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsUnitInvalid"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <DataTrigger.Value>
+                                                                    <sys:Int32>1</sys:Int32>
+                                                                </DataTrigger.Value>
+                                                                <!--VPro Fail Only: GridBackground=DefectColor; Border=DefectColor-->
+                                                                <Setter Property="BorderBrush" Value="{Binding Primary_Defect_Code_Color, UpdateSourceTrigger=PropertyChanged, FallbackValue=LightBlue}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger>
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource ConditionMultiConverter}">
+                                                                        <Binding Path="IsProcessed"/>
+                                                                        <Binding Path="IsVProFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsVidiFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsUnitInvalid"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <DataTrigger.Value>
+                                                                    <sys:Int32>2</sys:Int32>
+                                                                </DataTrigger.Value>
+                                                                <!--Both FAIL as Primary Defect: GridBackground=DefectColor; Border=DefectColor-->
+                                                                <Setter Property="BorderBrush" Value="{Binding Primary_Defect_Code_Color, UpdateSourceTrigger=PropertyChanged, FallbackValue=LightBlue}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger>
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource ConditionMultiConverter}">
+                                                                        <Binding Path="IsProcessed"/>
+                                                                        <Binding Path="IsVProFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsVidiFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsUnitInvalid"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <DataTrigger.Value>
+                                                                    <sys:Int32>3</sys:Int32>
+                                                                </DataTrigger.Value>
+                                                                <!--Vidi Fail Only: GridBackground=DefectColor; Border=AliceBlue-->
+                                                                <Setter Property="BorderBrush" Value="LightBlue"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger>
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource ConditionMultiConverter}">
+                                                                        <Binding Path="IsProcessed"/>
+                                                                        <Binding Path="IsVProFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsVidiFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsUnitInvalid"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <DataTrigger.Value>
+                                                                    <sys:Int32>4</sys:Int32>
+                                                                </DataTrigger.Value>
+                                                                <!--Both NOT Fail as Primary Defect: GridBackground=Green; Border=Green-->
+                                                                <Setter Property="BorderBrush" Value="LawnGreen"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger>
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource ConditionMultiConverter}">
+                                                                        <Binding Path="IsProcessed"/>
+                                                                        <Binding Path="IsVProFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsVidiFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsUnitInvalid"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <DataTrigger.Value>
+                                                                    <sys:Int32>5</sys:Int32>
+                                                                </DataTrigger.Value>
+                                                                <!--Default-->
+                                                                <Setter Property="BorderBrush" Value="LightBlue"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger>
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource ConditionMultiConverter}">
+                                                                        <Binding Path="IsProcessed"/>
+                                                                        <Binding Path="IsVProFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsVidiFailAsPrimaryDefect"/>
+                                                                        <Binding Path="IsUnitInvalid"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <DataTrigger.Value>
+                                                                    <sys:Int32>6</sys:Int32>
+                                                                </DataTrigger.Value>
+                                                                <!--Default-->
+                                                                <Setter Property="BorderBrush" Value="Black"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Grid.Resources>
+
+                                                <Border x:Name="myBorder"  BorderThickness="2">
+                                                    <TextBlock Text="V" FontSize="18"  HorizontalAlignment="Center" VerticalAlignment="Center"  Background="Transparent" Foreground="Black"
+                                                           Visibility="{Binding IsVidiFailAsPrimaryDefect, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TrueForVisibleConverter}}">
+                                                    </TextBlock>
+                                                </Border>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style>
+                                            <Setter Property="Canvas.Left" Value="{Binding OrgX}" />
+                                            <Setter Property="Canvas.Top" Value="{Binding OrgY}" />
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+                                </ItemsControl>
+                            </Canvas>
+                        </Grid>
+
+                        <GroupBox Header="Legend" Grid.Row="2" HorizontalAlignment="Right" Margin="10"
+                                          Height="Auto" BorderBrush="AliceBlue" BorderThickness="1">
+                            <Grid Grid.Row="1" HorizontalAlignment="Right">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left">
+                                    <TextBlock Margin="5,2,5,2" Text="Pass" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Rectangle Width="20" Height="20" Margin="5,2,5,2" Fill="LawnGreen"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch">
+                                    <TextBlock Margin="5,2,5,2" Text="Fail" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                </Border>
+
+                                <Border Grid.Row="1" Grid.Column="1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Rectangle Width="20" Height="20" Margin="5,2,5,2" Fill="Red"/>
+                                        <Grid Width ="20" Height="18" Margin="5,2,5,2" Background="Red">
+                                            <TextBlock Text="V" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Grid>
+                                        <Grid Width ="20" Height="20" Margin="5,2,5,2" Background="Red">
+                                            <Border BorderBrush="LightBlue" BorderThickness="2">
+                                                <TextBlock Text="V" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </GroupBox>
+                        <Border Grid.Row="3" HorizontalAlignment="Stretch" Margin="0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" HorizontalAlignment="Stretch">
+                                    <TextBlock Text="Fail type:" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2"/>
+                                </Border>
+
+                                <Border Grid.Column="1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Rectangle Width="20" Height="20" Margin="5,2,5,2" Fill="Red"/>
+                                        <TextBlock Text="Conventional (VPro)" Foreground="White" Margin="2"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="2">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Grid Width ="20" Height="20" Margin="5,2,5,2" Background="Red" HorizontalAlignment="Left">
+                                            <TextBlock Text="V" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Grid>
+                                        <TextBlock Text="Deep Learning (Vidi)" Foreground="White" Margin="2"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="3">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Grid Width ="20" Height="20" Margin="5,2,5,2" Background="Red" HorizontalAlignment="Left">
+                                            <Border BorderBrush="LightBlue" BorderThickness="2">
+                                                <TextBlock Text="V" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </Grid>
+                                        <TextBlock Text="VPro + Vidi" Foreground="White" Margin="2"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </GroupBox>
+            </Grid>
         </DockPanel>
         
         <Grid Grid.Row="1" Background="PowderBlue" Margin="5">
@@ -71,7 +629,7 @@
                     </ListBox.ContextMenu>
                 </ListBox>
             </ScrollViewer>
-            <Button Name="BtnSaveLog" Margin="2,174,2,2" Content="Save Log" Command="{Binding}"/>
+            <Button Name="BtnSaveLog" Width="150" Height="30" Content="Save Log" Command="{Binding}"/>
         </Grid>
     </Grid>
 </Window>

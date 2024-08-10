@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace JungleGym
 {
-    public class CogJobResultRetriever : QVS_Interfaces.IResult
+    public class CogJobResultRetriever : ZingifyDesigns.IResult
     {
         XDocument settingXml;
         string ResultXmlPath;

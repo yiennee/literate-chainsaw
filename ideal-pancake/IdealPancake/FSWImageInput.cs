@@ -9,7 +9,7 @@ using System.IO;
 
 namespace IdealPancake
 {
-    public class FSWImageInput : QVS_Interfaces.ImageInputBase
+    public class FSWImageInput : ZingifyDesigns.ImageInputBase
     {
         FileSystemWatcher fsw;
         XDocument settingXml;

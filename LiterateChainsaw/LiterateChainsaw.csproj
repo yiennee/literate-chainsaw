@@ -26,6 +26,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,7 +38,26 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <Win32Resource>
+    </Win32Resource>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\MainApp.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Cognex.VisionPro, Version=75.1.1.0, Culture=neutral, PublicKeyToken=ef0f902af9dee505, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\Cognex\VisionPro\ReferencedAssemblies\Cognex.VisionPro.dll</HintPath>
+    </Reference>
+    <Reference Include="Cognex.VisionPro.ImageFile, Version=75.1.1.0, Culture=neutral, PublicKeyToken=ef0f902af9dee505, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\Cognex\VisionPro\ReferencedAssemblies\Cognex.VisionPro.ImageFile.dll</HintPath>
+    </Reference>
+    <Reference Include="Cognex.VisionPro.ImageFile.Controls, Version=75.1.1.0, Culture=neutral, PublicKeyToken=ef0f902af9dee505, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\Cognex\VisionPro\ReferencedAssemblies\Cognex.VisionPro.ImageFile.Controls.dll</HintPath>
+    </Reference>
     <Reference Include="NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -52,13 +73,35 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="VMBase.cs" />
+    <Compile Include="Converters\ConditionMultiConverter.cs" />
+    <Compile Include="Converters\StringToSolidColorBrushConverter.cs" />
+    <Compile Include="Converters\TrueForVisibleConverter.cs" />
+    <Compile Include="Converters\YieldConditionConverter.cs" />
+    <Compile Include="Global.cs" />
+    <Compile Include="Helpers\Command.cs" />
+    <Compile Include="Helpers\FileStreamer.cs" />
+    <Compile Include="Helpers\RelayCommand.cs" />
+    <Compile Include="Helpers\Serialization.cs" />
+    <Compile Include="Model\KlarfMap.cs" />
+    <Compile Include="Model\Map.cs" />
+    <Compile Include="Model\Unit.cs" />
+    <Compile Include="Model\WaferSerializable.cs" />
+    <Compile Include="Model\XMLMap_SemiG85.cs" />
+    <Compile Include="Process.cs" />
+    <Compile Include="PropertyCustom.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ViewModel\DefectViewModel.cs" />
+    <Compile Include="ViewModel\WaferViewModel.cs" />
+    <Compile Include="ViewModel\VMBase.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -67,7 +110,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Helper.cs" />
+    <Compile Include="Helpers\Helper.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -106,10 +149,26 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\animated-disco\AnimatedDisco\AnimatedDisco.csproj">
+      <Project>{8714da58-4a21-4c35-91c4-b0c2141fe65a}</Project>
+      <Name>AnimatedDisco</Name>
+    </ProjectReference>
     <ProjectReference Include="..\zephyr-innovations\ZephyrInnovations\ZephyrInnovations.csproj">
       <Project>{638ebd98-91db-4996-8eb2-3b5583bafd85}</Project>
       <Name>ZephyrInnovations</Name>
     </ProjectReference>
+    <ProjectReference Include="..\zingify-designs\ZingifyDesigns\ZingifyDesigns.csproj">
+      <Project>{b0908853-4c2d-4684-a57a-f45b5e207ef6}</Project>
+      <Name>ZingifyDesigns</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="GemBox.Spreadsheet">
+      <Version>49.0.1767</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\MainApp.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

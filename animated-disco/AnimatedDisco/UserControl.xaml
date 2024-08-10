@@ -1,0 +1,20 @@
+﻿<Window x:Class="AnimatedDisco.UserControl"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AnimatedDisco"
+        mc:Ignorable="d"
+        Title="AnimatedDisco" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="15*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Button Content="Start Loop" Click="BtnStartLoop_Click" Margin="86,50,559,153"/>
+        <Button Content="Cancel Loop" Click="BtnCancelLoop_Click" Margin="294,50,351,153"/>
+    </Grid>
+</Window>

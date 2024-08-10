@@ -1,0 +1,8 @@
+<CogJobResultRetriever>
+	<OutgoingPath>D:\Backup from QES\C#\QVS - CogToolEditor\ImageOutput</OutgoingPath>
+	<ResultXmlPath>D:\Backup from QES\C#\QVS - CogToolEditor\ResultXml</ResultXmlPath>
+</CogJobResultRetriever>
+<FSWInputImageSetting>
+	<IncomingPath>Communication\Vision_Processor\To</IncomingPath>
+	<Extension>.bmp,.jpg,.png,.tif,.tiff</Extension>
+</FSWInputImageSetting>
