@@ -1,8 +1,11 @@
-﻿using Cognex.VisionPro.ImageFile;
+﻿using Cognex.VisionPro;
+using Cognex.VisionPro.Blob;
+using Cognex.VisionPro.ImageFile;
 using LiterateChainsaw.Helpers;
 using LiterateChainsaw.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -92,20 +95,147 @@ namespace LiterateChainsaw
         }
         public ICommand CMDConfigureIN { get { return _CMDConfigureIN ?? (_CMDConfigureIN = new RelayCommand<object>(execute => ConfigureIN())); } }
 
-        private void ConfigureIN()
+        private void ConfigureIN(bool IsRetry=false)
         {
-
+            Task.Run(()=>
+            {
+                OpenImage();
+            });
         }
+
+        private void OpenImage(bool IsRetry = false)
+        {
+            CogImageFile cogimagefile = new CogImageFile();
+            CogImageFileTool cogimagefiletool = new CogImageFileTool();
+            string status = "ReadImage";
+            object ICogImage = new object();
+            int mstimeout = 2000;
+
+            try
+            {
+                //using (CogImageFile ImgFile = new CogImageFile())
+                //{
+                //    try
+                //    {
+                //        ImgFile.Open(imagefile, CogImageFileModeConstants.Read);
+                //        CogImageFileTool ImgFileTool = new CogImageFileTool();
+                //        ImgFileTool.Operator = ImgFile;
+                //        ImgFileTool.Run();
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        //MessageBox.Show($"Open Image Error : {ex}");
+                //        status = "ReadImage(backup)";
+                //    }
+                //}
+                //cogimagefile.Open(imagefile, CogImageFileModeConstants.Read);//cog opens an image file in certain mode
+                //cogimagefiletool.Operator = cogimagefile;
+
+
+                string imagefile = @"C:\Users\yn.leong\Downloads\blobimg8.bmp";
+
+                if (status == "ReadImage(backup)")
+                {
+                    string backupimg = @"D:\30018A_PPIDUMMY_CAS01_1_1_25_[01]_[12].tif";
+                    cogimagefile = new CogImageFile();//ppi4424
+                    cogimagefiletool = new CogImageFileTool();
+                    cogimagefile.Open(backupimg, CogImageFileModeConstants.Read);//cog opens an image file in certain mode
+                    cogimagefiletool.Operator = cogimagefile; cogimagefiletool.Run();
+                    ICogImage = cogimagefiletool.OutputImage;
+                    status = "ReadImage(backup)";
+                    //File.Delete(imagefile);
+                }
+                else
+                {
+                    cogimagefile = new CogImageFile();//ppi4424
+                    cogimagefiletool = new CogImageFileTool();
+                    cogimagefile.Open(imagefile, CogImageFileModeConstants.Read);//cog opens an image file in certain mode
+                    cogimagefiletool.Operator = cogimagefile; cogimagefiletool.Run();
+                    ICogImage = cogimagefiletool.OutputImage;
+                }
+
+
+                TimeSpan timeout = TimeSpan.FromMilliseconds(mstimeout);
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                bool IsFileOpenedSuccessfully = false;
+                List<string> exceptionMessages = new List<string>();
+
+                while (stopwatch.Elapsed < timeout)
+                {
+                    try
+                    {
+                        cogimagefile = new CogImageFile();//ppi4424
+                        cogimagefiletool = new CogImageFileTool();
+                        cogimagefile.Open(imagefile, CogImageFileModeConstants.Read);//cog opens an image file in certain mode
+                        cogimagefiletool.Operator = cogimagefile; cogimagefiletool.Run();
+                        ICogImage = cogimagefiletool.OutputImage;
+                        IsFileOpenedSuccessfully = true;
+                        break;
+                    }
+                    catch (IOException IOex)
+                    {
+                        exceptionMessages.Add($"IOException: {IOex}");
+                    }
+                    catch (UnauthorizedAccessException unauthEx)
+                    {
+                        exceptionMessages.Add($"UnauthorizedAccessException: {unauthEx}");
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        exceptionMessages.Add($"Exception: {ex}");
+                        break;
+                    }
+
+                    System.Threading.Thread.Sleep(100);
+                }
+
+                if (!IsFileOpenedSuccessfully)
+                {
+                    foreach (var message in exceptionMessages)
+                    {
+                        qGlobal.WriteRunLog(true, $"OpenImage {message}", "ERROR");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                qGlobal.WriteRunLog(true, $"OpenImageError={ex.ToString()}", "ERROR");
+                OpenImage(true);
+            }
+        }
+
         public ICommand CMDConfigureOUT { get { return _CMDConfigureOUT ?? (_CMDConfigureOUT = new RelayCommand<object>(execute => ConfigureOUT())); } }
 
         private void ConfigureOUT()
         {
-            string imagefile = @"C:\Users\yn.leong\OneDrive - QES (Asia-Pacific) Sdn Bhd\Desktop\offline_image2\30018A_PPIDUMMY_CAS01_1_1_25_[12]_[32].tif";
-            CogImageFile cogimagefile = new CogImageFile();//ppi4424
-            CogImageFileTool cogimagefiletool = new CogImageFileTool();
-            cogimagefile.Open(imagefile, CogImageFileModeConstants.Read);//cog opens an image file in certain mode
-            cogimagefiletool.Operator = cogimagefile;
-            cogimagefiletool.Run();
+            try
+            {
+                string imagefile = @"C:\Users\yn.leong\Downloads\blobimg8.bmp";
+                CogImageFile cogimagefile = new CogImageFile();//ppi4424
+                CogImageFileTool cogimagefiletool = new CogImageFileTool();
+                cogimagefile.Open(imagefile, CogImageFileModeConstants.Read);//cog opens an image file in certain mode
+                cogimagefiletool.Operator = cogimagefile;
+                cogimagefiletool.Run();
+
+                ICogImage cogimage = (CogImage8Grey)cogimagefiletool.OutputImage;
+
+                CogBlobTool cogblobtool_surface = new CogBlobTool();
+                cogblobtool_surface.InputImage = cogimage;
+                cogblobtool_surface.RunParams.SegmentationParams.Mode = CogBlobSegmentationModeConstants.HardDynamicThreshold;
+                cogblobtool_surface.RunParams.SegmentationParams.Polarity = CogBlobSegmentationPolarityConstants.LightBlobs;
+
+
+                cogblobtool_surface.Run();
+                CogBlobResults blobresults = cogblobtool_surface.Results;
+
+                var vblobs = blobresults?.GetBlobs();//change vblobs type to CogBlobResultCollection 
+                //cogblobtool_surface.Results?.Dispose();
+            }
+            catch (Exception ee)
+            {
+                qGlobal.WriteRunLog(true, $"ConfigureOUT={ee.ToString()}", "ERROR");
+            }
         }
 
         public Process ProcessRun { get; set; }
