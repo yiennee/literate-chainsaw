@@ -225,12 +225,24 @@ namespace LiterateChainsaw
                 cogblobtool_surface.RunParams.SegmentationParams.Mode = CogBlobSegmentationModeConstants.HardDynamicThreshold;
                 cogblobtool_surface.RunParams.SegmentationParams.Polarity = CogBlobSegmentationPolarityConstants.LightBlobs;
 
-
                 cogblobtool_surface.Run();
                 CogBlobResults blobresults = cogblobtool_surface.Results;
 
-                var vblobs = blobresults?.GetBlobs();//change vblobs type to CogBlobResultCollection 
-                //cogblobtool_surface.Results?.Dispose();
+                //(2)*dispose CogBlobResultCollection, which is enumerable collection of CogBlobResult
+                var vblobs = blobresults?.GetBlobs();//test vblobs type: (2a)var; (2b)CogBlobResultCollection 
+
+                if (vblobs != null)
+                {
+                    foreach (CogBlobResult blob in vblobs)
+                    {
+                        Console.WriteLine($"Blob ID={blob.ID}; Area={blob.Area}");
+                    }
+                    //vblobs.Dispose();//(2)
+                }
+
+                //(1)*dispose CogBlobResults
+                //cogblobtool_surface.Results?.Dispose();//(1a)
+                //blobresults?.Dispose();//(1a+1b)
             }
             catch (Exception ee)
             {
