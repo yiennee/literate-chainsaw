@@ -1,0 +1,24 @@
+1) original as main software
+Tool.Run();
+trainoutput.CogBlobResults = Tool.Results;//CogBlobResults
+var blobcollection = Tool.Results?.GetBlobs();//CogBlobResultCollection is enumerable collection of CogBlobResult
+if (blobcollection)
+{
+	foreach (CogBlobResult blob in blobcollection)
+	{
+		
+	}
+
+	//blobcollection.Dispose();//*dispose CogBlobResultCollection
+}
+//Tool.Results.Dispose();//*dispose CogBlobResults
+
+2) First Fix
+Tool.Results.Dispose();//*dispose CogBlobResults
+
+3) will trainoutput.CogBlobResults (copy of Tool.Results) take up memory and not be freed?
+trainoutput.CogBlobResults.Dispose();//*dispose copy of CogBlobResults
+
+4) will the CogBlobResultCollection (product of Tool.Results.GetBlobs) take up memory and not be freed?
+i. var blobcollection - blobcollection.Dispose();//*dispose CogBlobResultCollection
+ii. CogBlobResultCollection blobcollection - blobcollection.Dispose();//*dispose CogBlobResultCollection
